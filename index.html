@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Focus Click Challenge</title>
+
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3747693628016396"
+     crossorigin="anonymous"></script>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    padding: 40px;
+}
+
+button {
+    padding: 20px 40px;
+    font-size: 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    background: #ffcc00;
+    color: black;
+    transition: 0.2s;
+}
+
+button:hover {
+    transform: scale(1.05);
+}
+
+.stats {
+    margin-top: 20px;
+    font-size: 18px;
+}
+
+.ad-box {
+    margin-top: 40px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>⚡ Focus Click Challenge</h1>
+    <p>Klik 50 keer zo snel mogelijk!</p>
+    
+    <button onclick="clickGame()">Klik hier!</button>
+
+    <div class="stats">
+        <p>Kliks: <span id="clicks">0</span></p>
+        <p>Tijd: <span id="time">0.00</span> sec</p>
+        <p id="result"></p>
+    </div>
+
+    <div class="ad-box">
+        <!-- Advertentieblok -->
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-3747693628016396"
+             data-ad-slot="1234567890"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+             (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
+
+</div>
+
+<script>
+let clicks = 0;
+let startTime = null;
+
+function clickGame() {
+    if (clicks === 0) {
+        startTime = new Date().getTime();
+    }
+
+    clicks++;
+    document.getElementById("clicks").textContent = clicks;
+
+    if (clicks === 50) {
+        let endTime = new Date().getTime();
+        let timeTaken = (endTime - startTime) / 1000;
+        document.getElementById("time").textContent = timeTaken.toFixed(2);
+        document.getElementById("result").textContent = 
+            "🔥 Klaar! Jouw tijd: " + timeTaken.toFixed(2) + " seconden!";
+        clicks = 0;
+    }
+}
+</script>
+
+</body>
+</html>
