@@ -1,103 +1,940 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Focus Click Challenge</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ArcadeMan999</title>
+  <style>
+    :root {
+      --neon: #c724f5;
+      --neon2: #8b2fff;
+      --neon-glow: 0 0 8px #c724f5, 0 0 20px #c724f5, 0 0 40px #8b2fff;
+      --dark: #0a0010;
+      --dark2: #100020;
+      --dark3: #1a0035;
+      --card: #16002a;
+      --text: #f0e0ff;
+      --muted: #a070c0;
+    }
 
-<!-- Google AdSense -->
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3747693628016396"
-     crossorigin="anonymous"></script>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-<style>
-body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    color: white;
-    margin: 0;
-    padding: 0;
-}
+    body {
+      background: var(--dark);
+      color: var(--text);
+      font-family: 'Segoe UI', sans-serif;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
 
-.container {
-    padding: 40px;
-}
+    /* ====== SCANLINE OVERLAY ====== */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0,0,0,0.04) 0px,
+        rgba(0,0,0,0.04) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+      pointer-events: none;
+      z-index: 9999;
+    }
 
-button {
-    padding: 20px 40px;
-    font-size: 20px;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    background: #ffcc00;
-    color: black;
-    transition: 0.2s;
-}
+    /* ====== NAVBAR ====== */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      background: rgba(10, 0, 16, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(199, 36, 245, 0.3);
+      padding: 0 2rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
-button:hover {
-    transform: scale(1.05);
-}
+    .nav-logo {
+      font-size: 1.4rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: var(--neon);
+      text-shadow: var(--neon-glow);
+      text-transform: uppercase;
+      cursor: pointer;
+    }
 
-.stats {
-    margin-top: 20px;
-    font-size: 18px;
-}
+    .nav-logo span { color: #fff; }
 
-.ad-box {
-    margin-top: 40px;
-}
-</style>
+    .nav-links {
+      display: flex;
+      gap: 0.25rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      padding: 0.4rem 1rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      transition: all 0.2s;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      color: var(--neon);
+      border-color: rgba(199,36,245,0.35);
+      background: rgba(199,36,245,0.08);
+      text-shadow: 0 0 8px var(--neon);
+    }
+
+    /* ====== PAGES ====== */
+    .page {
+      display: none;
+      min-height: 100vh;
+      padding-top: 64px;
+    }
+    .page.active { display: block; }
+
+    /* ====== HERO ====== */
+    .hero {
+      min-height: calc(100vh - 64px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 40%, rgba(139,47,255,0.18) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 40% at 20% 80%, rgba(199,36,245,0.1) 0%, transparent 60%);
+    }
+
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(199,36,245,0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(199,36,245,0.07) 1px, transparent 1px);
+      background-size: 50px 50px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+    }
+
+    .hero-content { position: relative; z-index: 1; max-width: 800px; }
+
+    .hero-badge {
+      display: inline-block;
+      background: rgba(199,36,245,0.15);
+      border: 1px solid rgba(199,36,245,0.4);
+      color: var(--neon);
+      padding: 0.3rem 1rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      text-shadow: 0 0 8px var(--neon);
+    }
+
+    .hero h1 {
+      font-size: clamp(3rem, 10vw, 7rem);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -2px;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+    }
+
+    .hero h1 .arcade { color: #fff; }
+    .hero h1 .man {
+      color: var(--neon);
+      text-shadow: var(--neon-glow);
+    }
+    .hero h1 .num { color: var(--neon2); text-shadow: 0 0 8px var(--neon2), 0 0 24px var(--neon2); }
+
+    .hero p {
+      font-size: 1.1rem;
+      color: var(--muted);
+      max-width: 500px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.6;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.75rem;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--neon), var(--neon2));
+      color: #fff;
+      box-shadow: 0 0 16px rgba(199,36,245,0.5), 0 4px 16px rgba(0,0,0,0.4);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 28px rgba(199,36,245,0.8), 0 8px 24px rgba(0,0,0,0.4);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--neon);
+      border: 1.5px solid var(--neon);
+      box-shadow: inset 0 0 8px rgba(199,36,245,0.05);
+    }
+    .btn-outline:hover {
+      background: rgba(199,36,245,0.1);
+      transform: translateY(-2px);
+      box-shadow: 0 0 16px rgba(199,36,245,0.4);
+    }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--muted);
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      opacity: 0.6;
+    }
+
+    .scroll-hint::after {
+      content: '';
+      width: 1px;
+      height: 32px;
+      background: linear-gradient(var(--neon), transparent);
+      animation: scrollpulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes scrollpulse {
+      0%, 100% { opacity: 0.3; transform: scaleY(1); }
+      50% { opacity: 1; transform: scaleY(1.2); }
+    }
+
+    /* ====== SECTION STYLES ====== */
+    .section {
+      padding: 5rem 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      font-size: 2.5rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-title span {
+      color: var(--neon);
+      text-shadow: var(--neon-glow);
+    }
+
+    .section-sub {
+      color: var(--muted);
+      font-size: 1rem;
+      margin-bottom: 3rem;
+    }
+
+    .neon-divider {
+      width: 80px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--neon), var(--neon2));
+      border-radius: 999px;
+      margin: 0.75rem 0 2rem;
+      box-shadow: 0 0 8px var(--neon);
+    }
+
+    /* ====== CARDS ====== */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(199,36,245,0.2);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 0.25s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .card:hover {
+      border-color: rgba(199,36,245,0.6);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 32px rgba(199,36,245,0.2), 0 0 0 1px rgba(199,36,245,0.3);
+    }
+
+    .card-thumb {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: linear-gradient(135deg, var(--dark3), var(--dark2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-thumb::after {
+      content: '▶';
+      position: absolute;
+      bottom: 0.75rem;
+      right: 0.75rem;
+      background: rgba(0,0,0,0.7);
+      border: 1.5px solid rgba(199,36,245,0.5);
+      color: var(--neon);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      padding-left: 2px;
+    }
+
+    .card-body {
+      padding: 1rem 1.25rem 1.25rem;
+    }
+
+    .card-tag {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--neon);
+      margin-bottom: 0.4rem;
+      opacity: 0.8;
+    }
+
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      line-height: 1.4;
+      color: var(--text);
+    }
+
+    .card-meta {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 0.4rem;
+    }
+
+    /* ====== LIVE BADGE ====== */
+    .live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(255,40,40,0.15);
+      border: 1px solid rgba(255,40,40,0.4);
+      color: #ff5555;
+      padding: 0.2rem 0.7rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .live-dot {
+      width: 7px; height: 7px;
+      background: #ff4444;
+      border-radius: 50%;
+      box-shadow: 0 0 6px #ff4444;
+      animation: blink 1s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    /* ====== SOCIALS ====== */
+    .social-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .social-card {
+      background: var(--card);
+      border: 1px solid rgba(199,36,245,0.2);
+      border-radius: 12px;
+      padding: 1.75rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.25s;
+      cursor: pointer;
+    }
+
+    .social-card:hover {
+      border-color: var(--social-color, var(--neon));
+      box-shadow: 0 0 24px rgba(199,36,245,0.15), 0 8px 24px rgba(0,0,0,0.4);
+      transform: translateY(-4px);
+    }
+
+    .social-icon {
+      font-size: 2.5rem;
+      filter: drop-shadow(0 0 8px var(--social-color, var(--neon)));
+    }
+
+    .social-name {
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--social-color, var(--neon));
+    }
+
+    .social-handle {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    /* ====== ABOUT ====== */
+    .about-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.5fr;
+      gap: 4rem;
+      align-items: start;
+    }
+
+    @media (max-width: 700px) {
+      .about-layout { grid-template-columns: 1fr; gap: 2rem; }
+      .nav-links a { padding: 0.4rem 0.6rem; font-size: 0.8rem; }
+    }
+
+    .avatar-box {
+      aspect-ratio: 1;
+      background: linear-gradient(135deg, var(--dark3), var(--dark2));
+      border: 2px solid rgba(199,36,245,0.3);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 6rem;
+      box-shadow: 0 0 32px rgba(199,36,245,0.15);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .avatar-box::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 30% 30%, rgba(199,36,245,0.15), transparent 60%);
+    }
+
+    .about-text h3 {
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: var(--neon);
+      text-shadow: 0 0 12px var(--neon);
+      margin-bottom: 1rem;
+    }
+
+    .about-text p {
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 0.97rem;
+      margin-bottom: 1rem;
+    }
+
+    .stat-row {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      text-align: center;
+      background: rgba(199,36,245,0.07);
+      border: 1px solid rgba(199,36,245,0.2);
+      border-radius: 10px;
+      padding: 1rem 1.5rem;
+      flex: 1;
+      min-width: 100px;
+    }
+
+    .stat-num {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--neon);
+      text-shadow: 0 0 10px var(--neon);
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-top: 0.2rem;
+    }
+
+    /* ====== FOOTER ====== */
+    footer {
+      background: var(--dark2);
+      border-top: 1px solid rgba(199,36,245,0.15);
+      padding: 2rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    footer a { color: var(--neon); text-decoration: none; }
+    footer a:hover { text-shadow: 0 0 8px var(--neon); }
+
+    /* ====== STREAM SCHEDULE ====== */
+    .schedule-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .schedule-item {
+      background: var(--card);
+      border: 1px solid rgba(199,36,245,0.15);
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .schedule-day {
+      min-width: 100px;
+      font-weight: 800;
+      font-size: 0.9rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--neon);
+      text-shadow: 0 0 8px var(--neon);
+    }
+
+    .schedule-info {
+      flex: 1;
+    }
+
+    .schedule-game {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .schedule-time {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 0.2rem;
+    }
+
+    .schedule-status {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .status-planned {
+      background: rgba(139,47,255,0.15);
+      border: 1px solid rgba(139,47,255,0.3);
+      color: var(--neon2);
+    }
+
+    .status-maybe {
+      background: rgba(255,165,0,0.1);
+      border: 1px solid rgba(255,165,0,0.3);
+      color: orange;
+    }
+
+    /* ====== GLITCH ANIMATION ====== */
+    @keyframes glitch {
+      0%, 95%, 100% { text-shadow: var(--neon-glow); transform: none; }
+      96% { text-shadow: -2px 0 #ff004c, 2px 0 #00fff5; transform: skew(-1deg); }
+      97% { text-shadow: 2px 0 #ff004c, -2px 0 #00fff5; transform: skew(1deg); }
+      98% { text-shadow: var(--neon-glow); transform: none; }
+      99% { text-shadow: -2px 0 #c724f5; transform: skew(-0.5deg); }
+    }
+
+    .hero h1 .man {
+      animation: glitch 6s infinite;
+    }
+  </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>⚡ Focus Click Challenge</h1>
-    <p>Klik 50 keer zo snel mogelijk!</p>
-    
-    <button onclick="clickGame()">Klik hier!</button>
+<!-- NAVBAR -->
+<nav>
+  <div class="nav-logo" onclick="showPage('home')">Arcade<span>Man</span>999</div>
+  <ul class="nav-links">
+    <li><a onclick="showPage('home')" class="active" id="nav-home">Home</a></li>
+    <li><a onclick="showPage('videos')" id="nav-videos">Video's</a></li>
+    <li><a onclick="showPage('streams')" id="nav-streams">Streams</a></li>
+    <li><a onclick="showPage('socials')" id="nav-socials">Socials</a></li>
+    <li><a onclick="showPage('about')" id="nav-about">Over Mij</a></li>
+  </ul>
+</nav>
 
-    <div class="stats">
-        <p>Kliks: <span id="clicks">0</span></p>
-        <p>Tijd: <span id="time">0.00</span> sec</p>
-        <p id="result"></p>
+<!-- ===== PAGE: HOME ===== -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+    <div class="hero-content">
+      <div class="hero-badge">🎮 Gaming &amp; Streams &amp; Meer</div>
+      <h1>
+        <div class="arcade">Arcade</div>
+        <div class="man">Man</div>
+        <div class="num">999</div>
+      </h1>
+      <p>Gaming videos, live streams en soms wat heel anders. Abonneer je en mis niks!</p>
+      <div class="hero-buttons">
+        <a href="https://www.youtube.com/@arcademan999" target="_blank" class="btn btn-primary">
+          ▶ Naar YouTube
+        </a>
+        <a href="#" onclick="showPage('videos'); return false;" class="btn btn-outline">
+          📺 Video's Bekijken
+        </a>
+      </div>
     </div>
+    <div class="scroll-hint">Scroll</div>
+  </div>
 
-    <div class="ad-box">
-        <!-- Advertentieblok -->
-        <ins class="adsbygoogle"
-             style="display:block"
-             data-ad-client="ca-pub-3747693628016396"
-             data-ad-slot="1234567890"
-             data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
-        <script>
-             (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
+  <!-- Quick stats -->
+  <div class="section" style="padding-top:0;">
+    <div class="card-grid" style="grid-template-columns: repeat(auto-fill, minmax(200px,1fr));">
+      <div class="card" style="cursor:default;">
+        <div class="card-body" style="text-align:center; padding:2rem;">
+          <div style="font-size:2rem; margin-bottom:.5rem;">🎮</div>
+          <div class="card-title">Gaming Videos</div>
+          <div class="card-meta">Van alles en nog wat</div>
+        </div>
+      </div>
+      <div class="card" style="cursor:default;">
+        <div class="card-body" style="text-align:center; padding:2rem;">
+          <div style="font-size:2rem; margin-bottom:.5rem;">🔴</div>
+          <div class="card-title">Live Streams</div>
+          <div class="card-meta">Regelmatige streams</div>
+        </div>
+      </div>
+      <div class="card" style="cursor:default;">
+        <div class="card-body" style="text-align:center; padding:2rem;">
+          <div style="font-size:2rem; margin-bottom:.5rem;">✨</div>
+          <div class="card-title">Overige Content</div>
+          <div class="card-meta">Soms wat anders</div>
+        </div>
+      </div>
+      <div class="card" style="cursor:default;">
+        <div class="card-body" style="text-align:center; padding:2rem;">
+          <div style="font-size:2rem; margin-bottom:.5rem;">💬</div>
+          <div class="card-title">Community</div>
+          <div class="card-meta">Join de Discord!</div>
+        </div>
+      </div>
     </div>
-
+  </div>
 </div>
 
+<!-- ===== PAGE: VIDEO'S ===== -->
+<div class="page" id="page-videos">
+  <div class="section">
+    <div class="section-title">Laatste <span>Video's</span></div>
+    <div class="neon-divider"></div>
+    <div class="section-sub">Mijn nieuwste uploads — gaming en meer!</div>
+
+    <div class="card-grid">
+      <a href="https://www.youtube.com/@arcademan999" target="_blank" class="card">
+        <div class="card-thumb">🎮</div>
+        <div class="card-body">
+          <div class="card-tag">Gaming</div>
+          <div class="card-title">Nieuwe video op YouTube</div>
+          <div class="card-meta">Klik om naar het kanaal te gaan</div>
+        </div>
+      </a>
+      <a href="https://www.youtube.com/@arcademan999" target="_blank" class="card">
+        <div class="card-thumb">🕹️</div>
+        <div class="card-body">
+          <div class="card-tag">Gameplay</div>
+          <div class="card-title">Meer video's bekijken?</div>
+          <div class="card-meta">Bezoek het YouTube kanaal</div>
+        </div>
+      </a>
+      <a href="https://www.youtube.com/@arcademan999" target="_blank" class="card">
+        <div class="card-thumb">🏆</div>
+        <div class="card-body">
+          <div class="card-tag">Highlights</div>
+          <div class="card-title">Alle video's van ArcadeMan999</div>
+          <div class="card-meta">YouTube • @arcademan999</div>
+        </div>
+      </a>
+      <a href="https://www.youtube.com/@arcademan999" target="_blank" class="card">
+        <div class="card-thumb">🎯</div>
+        <div class="card-body">
+          <div class="card-tag">Overig</div>
+          <div class="card-title">Soms wat heel anders...</div>
+          <div class="card-meta">Abonneer voor alles!</div>
+        </div>
+      </a>
+      <a href="https://www.youtube.com/@arcademan999" target="_blank" class="card">
+        <div class="card-thumb">🌟</div>
+        <div class="card-body">
+          <div class="card-tag">Populair</div>
+          <div class="card-title">Beste video's</div>
+          <div class="card-meta">Bekijk op YouTube</div>
+        </div>
+      </a>
+      <a href="https://www.youtube.com/@arcademan999" target="_blank" class="card">
+        <div class="card-thumb">🔥</div>
+        <div class="card-body">
+          <div class="card-tag">Recent</div>
+          <div class="card-title">Nieuwste uploads</div>
+          <div class="card-meta">YouTube • @arcademan999</div>
+        </div>
+      </a>
+    </div>
+
+    <div style="text-align:center; margin-top:3rem;">
+      <a href="https://www.youtube.com/@arcademan999" target="_blank" class="btn btn-primary">
+        ▶ Alle Video's op YouTube
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PAGE: STREAMS ===== -->
+<div class="page" id="page-streams">
+  <div class="section">
+    <div class="section-title">Live <span>Streams</span></div>
+    <div class="neon-divider"></div>
+    <div class="section-sub">Catch me live! Kijk mee tijdens mijn streams.</div>
+
+    <!-- Now streaming card -->
+    <div class="card" style="margin-bottom:2.5rem; cursor:default; border-color:rgba(255,40,40,0.3);">
+      <div class="card-body" style="display:flex; align-items:center; gap:1.5rem; padding:1.75rem; flex-wrap:wrap;">
+        <div style="font-size:3.5rem;">🎮</div>
+        <div style="flex:1;">
+          <div style="margin-bottom:.5rem;"><span class="live-badge"><span class="live-dot"></span>Live binnenkort</span></div>
+          <div style="font-size:1.2rem; font-weight:800; margin-bottom:.3rem;">Volgende Stream</div>
+          <div style="color:var(--muted); font-size:.9rem;">Zorg dat je geabonneerd bent en de bel aan!</div>
+        </div>
+        <a href="https://www.youtube.com/@arcademan999/streams" target="_blank" class="btn btn-primary">🔔 Notificaties Aan</a>
+      </div>
+    </div>
+
+    <!-- Schedule -->
+    <h3 style="font-size:1.2rem; font-weight:800; margin-bottom:1.25rem; text-transform:uppercase; letter-spacing:1px; color:var(--muted);">Stream Schema <span style="color:var(--neon);">(Placeholder)</span></h3>
+    <div class="schedule-list">
+      <div class="schedule-item">
+        <div class="schedule-day">Vrijdag</div>
+        <div class="schedule-info">
+          <div class="schedule-game">🎮 Gaming Night</div>
+          <div class="schedule-time">Avond — YouTube Live</div>
+        </div>
+        <span class="schedule-status status-planned">Gepland</span>
+      </div>
+      <div class="schedule-item">
+        <div class="schedule-day">Zaterdag</div>
+        <div class="schedule-info">
+          <div class="schedule-game">🕹️ Lange Stream Sessie</div>
+          <div class="schedule-time">Middag/Avond — YouTube Live</div>
+        </div>
+        <span class="schedule-status status-planned">Gepland</span>
+      </div>
+      <div class="schedule-item">
+        <div class="schedule-day">Zondag</div>
+        <div class="schedule-info">
+          <div class="schedule-game">✨ Spontane Stream</div>
+          <div class="schedule-time">Wanneer ik zin heb</div>
+        </div>
+        <span class="schedule-status status-maybe">Misschien</span>
+      </div>
+    </div>
+
+    <div style="text-align:center; margin-top:3rem;">
+      <a href="https://www.youtube.com/@arcademan999/streams" target="_blank" class="btn btn-primary">
+        🔴 Streams Bekijken
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PAGE: SOCIALS ===== -->
+<div class="page" id="page-socials">
+  <div class="section">
+    <div class="section-title">Sociale <span>Media</span></div>
+    <div class="neon-divider"></div>
+    <div class="section-sub">Vind mij overal — join de community!</div>
+
+    <div class="social-grid">
+      <a href="https://www.youtube.com/@arcademan999" target="_blank" class="social-card" style="--social-color: #ff4444;">
+        <div class="social-icon">📺</div>
+        <div class="social-name" style="color:#ff4444;">YouTube</div>
+        <div class="social-handle">@arcademan999</div>
+      </a>
+      <a href="#" target="_blank" class="social-card" style="--social-color: #5865F2;">
+        <div class="social-icon">💬</div>
+        <div class="social-name" style="color:#5865F2;">Discord</div>
+        <div class="social-handle">Link volgt binnenkort</div>
+      </a>
+      <a href="#" target="_blank" class="social-card" style="--social-color: #1da1f2;">
+        <div class="social-icon">🐦</div>
+        <div class="social-name" style="color:#1da1f2;">Twitter / X</div>
+        <div class="social-handle">@arcademan999</div>
+      </a>
+      <a href="#" target="_blank" class="social-card" style="--social-color: #e1306c;">
+        <div class="social-icon">📸</div>
+        <div class="social-name" style="color:#e1306c;">Instagram</div>
+        <div class="social-handle">@arcademan999</div>
+      </a>
+      <a href="#" target="_blank" class="social-card" style="--social-color: #9146ff;">
+        <div class="social-icon">🟣</div>
+        <div class="social-name" style="color:#9146ff;">Twitch</div>
+        <div class="social-handle">Placeholder</div>
+      </a>
+      <a href="#" target="_blank" class="social-card" style="--social-color: #ff0050;">
+        <div class="social-icon">🎵</div>
+        <div class="social-name" style="color:#ff0050;">TikTok</div>
+        <div class="social-handle">@arcademan999</div>
+      </a>
+    </div>
+
+    <!-- Newsletter / join box -->
+    <div style="margin-top:3.5rem; background:var(--card); border:1px solid rgba(199,36,245,0.25); border-radius:16px; padding:2.5rem; text-align:center;">
+      <div style="font-size:2.5rem; margin-bottom:1rem;">🎮</div>
+      <h3 style="font-size:1.4rem; font-weight:900; margin-bottom:.75rem;">Join de Community!</h3>
+      <p style="color:var(--muted); margin-bottom:1.5rem; max-width:400px; margin-left:auto; margin-right:auto;">
+        Abonneer op YouTube en zet de notificatie aan zodat je nooit een video of stream mist.
+      </p>
+      <a href="https://www.youtube.com/@arcademan999?sub_confirmation=1" target="_blank" class="btn btn-primary">
+        🔔 Abonneren
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PAGE: ABOUT ===== -->
+<div class="page" id="page-about">
+  <div class="section">
+    <div class="section-title">Over <span>Mij</span></div>
+    <div class="neon-divider"></div>
+
+    <div class="about-layout">
+      <div>
+        <div class="avatar-box">🎮</div>
+        <div class="stat-row">
+          <div class="stat">
+            <div class="stat-num">999</div>
+            <div class="stat-label">Arcade Power</div>
+          </div>
+          <div class="stat">
+            <div class="stat-num">∞</div>
+            <div class="stat-label">Game Hours</div>
+          </div>
+        </div>
+      </div>
+      <div class="about-text">
+        <h3>Hé, ik ben ArcadeMan999!</h3>
+        <p>
+          Welkom op mijn kanaal! Ik upload gaming videos en doe live streams van van alles en nog wat.
+          Of het nu games zijn die ik al jaren speel of iets nieuws dat ik wil uitproberen — alles kan voorbijkomen.
+        </p>
+        <p>
+          Naast gaming maak ik ook soms iets heel anders — gewoon wanneer ik er zin in heb.
+          Geen regels, geen schema, gewoon content waar ik blij van word.
+        </p>
+        <p>
+          Abonneer je op YouTube en join de Discord (volgt binnenkort!) om onderdeel te worden van de community. 🚀
+        </p>
+
+        <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-top:1.75rem;">
+          <a href="https://www.youtube.com/@arcademan999" target="_blank" class="btn btn-primary">▶ YouTube Kanaal</a>
+          <a href="#" onclick="showPage('socials'); return false;" class="btn btn-outline">💬 Alle Socials</a>
+        </div>
+
+        <div style="margin-top:2.5rem;">
+          <h4 style="font-size:.85rem; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:var(--muted); margin-bottom:1rem;">Games die ik speel</h4>
+          <div style="display:flex; flex-wrap:wrap; gap:.5rem;">
+            <span class="hero-badge" style="margin:0; font-size:.7rem;">🎮 Van Alles</span>
+            <span class="hero-badge" style="margin:0; font-size:.7rem;">🕹️ Retro</span>
+            <span class="hero-badge" style="margin:0; font-size:.7rem;">🏆 Competitive</span>
+            <span class="hero-badge" style="margin:0; font-size:.7rem;">👾 Indie</span>
+            <span class="hero-badge" style="margin:0; font-size:.7rem;">🌍 Open World</span>
+            <span class="hero-badge" style="margin:0; font-size:.7rem;">✨ Meer</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p style="margin-bottom:.5rem;">
+    &copy; 2025 <a href="https://www.youtube.com/@arcademan999" target="_blank">ArcadeMan999</a> — Gaming kanaal
+  </p>
+  <p>Gemaakt met 💜 &amp; veel te veel energy drinks</p>
+</footer>
+
 <script>
-let clicks = 0;
-let startTime = null;
-
-function clickGame() {
-    if (clicks === 0) {
-        startTime = new Date().getTime();
-    }
-
-    clicks++;
-    document.getElementById("clicks").textContent = clicks;
-
-    if (clicks === 50) {
-        let endTime = new Date().getTime();
-        let timeTaken = (endTime - startTime) / 1000;
-        document.getElementById("time").textContent = timeTaken.toFixed(2);
-        document.getElementById("result").textContent = 
-            "🔥 Klaar! Jouw tijd: " + timeTaken.toFixed(2) + " seconden!";
-        clicks = 0;
-    }
-}
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    document.getElementById('nav-' + id).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 </script>
 
 </body>
